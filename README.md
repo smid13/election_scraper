@@ -5,7 +5,7 @@ Výsledný soubor obsahuje na jednotlivých řádcích postupně všechny obce d
 Requirements
 
 Pro správný běh programu je potřeba nainstalovat potřebné knihovny.
-Instalaci provedeš před příkazovou řádku příkazem: pip install -r requirements.txt 
+Instalaci provedeš přes příkazovou řádku příkazem: pip install -r requirements.txt 
 
 Spuštění
 
