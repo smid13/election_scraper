@@ -11,6 +11,8 @@ Spuštění
 
 Soubor se spouští přes příkazovou řádku pomocí dvou argumentů.
 První argument musí obsahovat odkaz který okresek chcete stáhnout (př. https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=6&xnumnuts=4202).
+
 Druhý argument obsahuje jméno výstupního souboru (př. volby_chomutov.csv).
+
 path\py election_scraper "https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=6&xnumnuts=4202" "volby_chomutov.csv"
 
