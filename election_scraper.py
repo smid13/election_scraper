@@ -4,7 +4,17 @@ import sys
 import csv
 
 
-url, output_file = sys.argv[1], sys.argv[2]
+if len(sys.argv) < 2:
+    print("Nezadal si URL")
+    quit()
+url = sys.argv[1]
+if "https://volby.cz/pls/ps2017nss/ps32" not in url:
+    print("Zadaný odkaz není správný")
+    quit()
+if len(sys.argv) < 3:
+    print("Zadej název csv souboru")
+    quit()
+output_file = sys.argv[2]
 r = requests.get(url)
 html = r.text
 soup = BeautifulSoup(html, "html.parser")
@@ -18,7 +28,6 @@ for i in kody_obci_url:
     kody_obci.append(i.text)
 
 seznam_url = []
-nazev_obce = []
 kod_obce = []
 okrsek = []
 a = 0
@@ -29,8 +38,6 @@ for i in href_list:
     soup = BeautifulSoup(html, "html.parser")
     if soup.find("h2").text == "\nVýsledky hlasování za územní celky\n":
         seznam_url.append(i)
-        h3_tags = soup.find_all("h3")
-        nazev_obce.append(h3_tags[1].text.strip("\n").split(":")[1])
         kod_obce.append(kody_obci[a])
         okrsek.append("x")
         a += 1
@@ -39,8 +46,6 @@ for i in href_list:
         odkazy_okrsky_url = [(y.get("href")) for x in odkazy_okrsky for y in x.find_all("a")]
         for i in range(0, len(odkazy_okrsky_url)):
             odkazy_okrsky_url[i] = "https://volby.cz/pls/ps2017nss/" + odkazy_okrsky_url[i]
-            h3_tags = soup.find_all("h3")
-            nazev_obce.append(h3_tags[1].text.strip("\n").split(":")[1])
             kod_obce.append(kody_obci[a])
         [(okrsek.append(c.text)) for i in odkazy_okrsky for c in i.find_all("a")]
         a += 1
@@ -50,11 +55,16 @@ volici_v_seznamu = []
 vydane_obalky = []
 platne_hlasy = []
 platne_hlasy_strany = []
+nazvy_obci = []
 print("stahuji data....")
 for i in seznam_url:
     r = requests.get(i)
     html = r.text
     soup = BeautifulSoup(html, "html.parser")
+    if "Obec" in soup.find_all("h3")[1].text:
+        nazvy_obci.append(soup.find_all("h3")[1].text.split(":")[1])
+    else:
+        nazvy_obci.append(soup.find_all("h3")[2].text.split(":")[1])
     volici_v_seznamu.append(soup.find("td", {"headers": "sa2"}).text)
     vydane_obalky.append(soup.find("td", {"headers": "sa3"}).text)
     platne_hlasy.append(soup.find("td", {"headers": "sa6"}).text)
@@ -73,12 +83,12 @@ seznam_stran = []
 [(seznam_stran.append(strana.text)) for strana in seznam_stran_2]
 
 print("vytvařím csv")
-header = ["Kód", "Obec", "Okrsek", "Voliči v Seznamu", "Vydané Obálky", "PLatné Hlasy"]
+header = ["Kód", "Obec", "Okrsek", "Voliči v Seznamu", "Vydané Obálky", "Platné Hlasy"]
 [header.append(strana) for strana in seznam_stran]
 data = []
 [(data.append(list())) for i in range(0, len(seznam_url))]
 for i in range(0, len(seznam_url)):
-    data[i] = [kod_obce[i], nazev_obce[i], okrsek[i], volici_v_seznamu[i], vydane_obalky[i], platne_hlasy[i]]
+    data[i] = [kod_obce[i], nazvy_obci[i], okrsek[i], volici_v_seznamu[i], vydane_obalky[i], platne_hlasy[i]]
 a = 0
 b = len(seznam_stran)
 for i in data:
@@ -90,3 +100,4 @@ with open(output_file, "w", encoding='UTF8', newline='') as f:
     writer = csv.writer(f)
     writer.writerow(header)
     writer.writerows(data)
+print(f"soubor {output_file} uložen")
