@@ -15,6 +15,8 @@ if len(sys.argv) < 3:
     print("Zadej název csv souboru")
     quit()
 output_file = sys.argv[2]
+if output_file[-4:] != ".csv":
+    output_file += ".csv"
 r = requests.get(url)
 html = r.text
 soup = BeautifulSoup(html, "html.parser")
